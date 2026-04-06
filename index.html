@@ -1132,8 +1132,9 @@
                                 <div class="stat-sub" id="gasLastSync">-</div>
                             </div>
                         </div>
-                        <div style="margin-top:12px;display:flex;gap:8px;">
+                        <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px;">
                             <button class="btn btn-primary" style="font-size:12px;padding:8px 14px;" onclick="syncAllToSheets()">📤 ส่งข้อมูลทั้งหมดไป Sheets</button>
+                            <button class="btn btn-success" style="font-size:12px;padding:8px 14px;" onclick="loadAllFromSheets()">📥 โหลดจาก Google Sheets</button>
                             <button class="btn btn-ghost" style="font-size:12px;padding:8px 14px;" onclick="testGASConnection()">🔄 ทดสอบการเชื่อมต่อ</button>
                             <button class="btn btn-ghost" style="font-size:12px;padding:8px 14px;color:var(--danger);" onclick="disconnectGAS()">🔌 ยกเลิกการเชื่อมต่อ</button>
                         </div>
@@ -1889,6 +1890,7 @@ function submitPR() {
 function deletePR(prNum) {
     if (!confirm(`⚠️ ยืนยันลบ ${prNum}?\nการลบจะไม่สามารถกู้คืนได้`)) return;
     delete prDB[prNum];
+    saveAllToLocal();
     toast(`🗑️ ลบ ${prNum} สำเร็จ`);
     renderPRTable();
     renderDashPR();
@@ -3037,6 +3039,7 @@ function submitDept() {
     editingDeptId = null;
     closeModal('deptModal');
     f.reset();
+    saveAllToLocal();
     renderAllLinked();
 }
 
@@ -3084,6 +3087,7 @@ function deleteDept(deptId) {
     }
     if (!confirm(`⚠️ ยืนยันลบแผนก ${deptId} — ${d.nameTh}?`)) return;
     delete deptDB[deptId];
+    saveAllToLocal();
     toast(`🗑️ ลบแผนก ${deptId} สำเร็จ`);
     renderAllLinked();
 }
@@ -3091,6 +3095,7 @@ function deleteDept(deptId) {
 function deleteProject(projId) {
     if (!confirm(`⚠️ ยืนยันลบโครงการ ${projId}?`)) return;
     delete projectDB[projId];
+    saveAllToLocal();
     toast(`🗑️ ลบโครงการ ${projId} สำเร็จ`);
     renderAllLinked();
 }
@@ -3639,6 +3644,7 @@ function submitUser() {
         toast('✅ เพิ่มผู้ใช้ ' + data.name + ' (' + data.username + ') สำเร็จ!');
     }
     editingUserId = null; closeModal('userModal'); f.reset();
+    saveAllToLocal();
     renderUsersTable(); renderUserStats();
 }
 
@@ -3651,6 +3657,7 @@ function deleteUser(userId) {
     if (idx >= 0) TEAM_USERS.splice(idx, 1);
     localStorage.removeItem('pro_photo_' + userId);
     toast('🗑️ ลบ ' + u.name + ' สำเร็จ');
+    saveAllToLocal();
     renderUsersTable(); renderUserStats();
 }
 
@@ -4161,6 +4168,7 @@ function submitProject() {
         scope: document.getElementById('projScope').value
     };
 
+    saveAllToLocal();
     toast(`✅ สร้างโครงการ ${projId} สำเร็จ!`);
     closeModal('projectModal');
     renderProjectTable();
@@ -4918,6 +4926,26 @@ function removeLogo() {
     updateHeaderPreview();
 }
 
+function applyCompanySettings(s) {
+    if (!s || typeof s !== 'object') return;
+    const map = { nameTh: 'compNameTh', nameEn: 'compNameEn', taxId: 'compTaxId', branch: 'compBranch', addr1: 'compAddr1', addr2: 'compAddr2', phone: 'compPhone', fax: 'compFax', email: 'compEmail', website: 'compWebsite' };
+    for (const k in map) {
+        if (s[k] == null || s[k] === '') continue;
+        const el = document.getElementById(map[k]);
+        if (el) el.value = s[k];
+    }
+    if (s.logo) {
+        companyLogo = s.logo;
+        const img = document.getElementById('logoImg');
+        const ph = document.getElementById('logoPlaceholder');
+        const box = document.getElementById('logoPreviewBox');
+        if (img) { img.src = s.logo; img.style.display = ''; }
+        if (ph) ph.style.display = 'none';
+        if (box) { box.style.borderStyle = 'solid'; box.style.borderColor = 'var(--border)'; }
+    }
+    updateHeaderPreview();
+}
+
 function getCompanySettings() {
     return {
         nameTh: document.getElementById('compNameTh')?.value || 'บริษัท ตัวอย่าง จำกัด',
@@ -5081,6 +5109,7 @@ async function connectGAS() {
             toast('✅ เชื่อมต่อ Google Sheets + Drive สำเร็จ!');
             const el = document.getElementById('gasLastSync');
             if (el) el.textContent = 'เชื่อมต่อเมื่อ: ' + new Date().toLocaleString('th-TH');
+            setTimeout(loadAllFromSheets, 500);
         } else {
             toast('❌ API ตอบกลับไม่สำเร็จ');
         }
@@ -5094,6 +5123,7 @@ async function connectGAS() {
             toast('✅ เชื่อมต่อแล้ว (ทดสอบบันทึกข้อมูลเพื่อยืนยัน)');
             const el = document.getElementById('gasLastSync');
             if (el) el.textContent = 'เชื่อมต่อเมื่อ: ' + new Date().toLocaleString('th-TH');
+            setTimeout(loadAllFromSheets, 500);
         } else {
             toast('❌ เชื่อมต่อไม่ได้: ' + error.message);
         }
@@ -5127,6 +5157,100 @@ function disconnectGAS() {
     toast('🔌 ยกเลิกการเชื่อมต่อแล้ว');
 }
 
+// ═══════════════════════════════════════
+// ─── LOCAL STORAGE PERSISTENCE ───
+// ═══════════════════════════════════════
+const LOCAL_DB_KEY = 'pro_system_db_v1';
+
+function saveAllToLocal() {
+    try {
+        localStorage.setItem(LOCAL_DB_KEY, JSON.stringify({
+            prDB, poDatabase, grnDatabase, vendorDB, deptDB, projectDB,
+            teamUsers: TEAM_USERS,
+            savedAt: new Date().toISOString()
+        }));
+    } catch(e) { console.warn('⚠️ localStorage save failed:', e); }
+}
+
+function loadAllFromLocal() {
+    try {
+        const saved = localStorage.getItem(LOCAL_DB_KEY);
+        if (!saved) return false;
+        const data = JSON.parse(saved);
+        if (data.prDB) Object.assign(prDB, data.prDB);
+        if (data.poDatabase) Object.assign(poDatabase, data.poDatabase);
+        if (data.grnDatabase) Object.assign(grnDatabase, data.grnDatabase);
+        if (data.vendorDB) Object.assign(vendorDB, data.vendorDB);
+        if (data.deptDB) Object.assign(deptDB, data.deptDB);
+        if (data.projectDB) Object.assign(projectDB, data.projectDB);
+        if (data.teamUsers && Array.isArray(data.teamUsers) && data.teamUsers.length) {
+            TEAM_USERS.length = 0;
+            data.teamUsers.forEach(u => TEAM_USERS.push(u));
+            restoreUserPhotosFromLocal();
+        }
+        console.log('✅ โหลดข้อมูลจาก localStorage (บันทึกเมื่อ', data.savedAt, ')');
+        return true;
+    } catch(e) { console.warn('⚠️ localStorage load failed:', e); return false; }
+}
+
+async function loadAllFromSheets() {
+    if (!GAS_CONFIG.enabled || !GAS_CONFIG.webAppUrl) { toast('⚠️ ยังไม่ได้เชื่อมต่อ Google Sheets'); return; }
+    try {
+        toast('☁️ กำลังโหลดข้อมูลจาก Google Sheets...');
+        const result = await saveToSheets('getAllData', {});
+        if (!result || result.error) { toast('⚠️ ไม่สามารถโหลดจาก Google Sheets ได้'); return; }
+        let loaded = 0;
+        if (result.prDB && Object.keys(result.prDB).length) {
+            Object.keys(prDB).forEach(k => delete prDB[k]);
+            Object.assign(prDB, result.prDB); loaded++;
+        }
+        if (result.poDatabase && Object.keys(result.poDatabase).length) {
+            Object.keys(poDatabase).forEach(k => delete poDatabase[k]);
+            Object.assign(poDatabase, result.poDatabase); loaded++;
+        }
+        if (result.grnDatabase && Object.keys(result.grnDatabase).length) {
+            Object.keys(grnDatabase).forEach(k => delete grnDatabase[k]);
+            Object.assign(grnDatabase, result.grnDatabase); loaded++;
+        }
+        if (result.vendorDB && Object.keys(result.vendorDB).length) {
+            Object.keys(vendorDB).forEach(k => delete vendorDB[k]);
+            Object.assign(vendorDB, result.vendorDB); loaded++;
+        }
+        if (result.deptDB && Object.keys(result.deptDB).length) {
+            Object.keys(deptDB).forEach(k => delete deptDB[k]);
+            Object.assign(deptDB, result.deptDB); loaded++;
+        }
+        if (result.projectDB && Object.keys(result.projectDB).length) {
+            Object.keys(projectDB).forEach(k => delete projectDB[k]);
+            Object.assign(projectDB, result.projectDB); loaded++;
+        }
+        if (result.teamUsers && Array.isArray(result.teamUsers) && result.teamUsers.length) {
+            TEAM_USERS.length = 0;
+            result.teamUsers.forEach(u => TEAM_USERS.push(u));
+            restoreUserPhotosFromLocal();
+            loaded++;
+        }
+        if (result.settings && typeof result.settings === 'object' && Object.keys(result.settings).length) {
+            applyCompanySettings(result.settings);
+            loaded++;
+        }
+        if (loaded > 0) {
+            saveAllToLocal();
+            populateAllDeptDropdowns();
+            renderPRTable(); renderDashPR(); renderAllLinked();
+            if (typeof renderPOTable === 'function') renderPOTable();
+            if (typeof renderDeptTable === 'function') { renderDeptTable(); renderDeptStats(); renderBudgetTable(); renderBudgetStats(); }
+            if (typeof renderProjectTable === 'function') { renderProjectTable(); renderProjectStats(); renderDashProjects(); }
+            initUsersAndVendors();
+            if (typeof renderGRNPage === 'function' && document.querySelector('.page.active')?.id === 'page-grn') renderGRNPage();
+            if (currentUser) updateUserDisplay();
+            toast('✅ โหลดข้อมูลจาก Google Sheets สำเร็จ!');
+        } else {
+            toast('ℹ️ ใน Google Sheets ยังไม่มีข้อมูล — ลองกด «ส่งข้อมูลทั้งหมดไป Sheets» จากเครื่องที่มีข้อมูลก่อน');
+        }
+    } catch(e) { console.warn('GAS load error:', e); toast('⚠️ โหลดจาก Google Sheets ล้มเหลว'); }
+}
+
 // ─── Generic save to Sheets ───
 async function saveToSheets(action, data) {
     if (!GAS_CONFIG.enabled || !GAS_CONFIG.webAppUrl) return null;
@@ -5147,18 +5271,21 @@ async function saveToSheets(action, data) {
 
 // ─── Save PR ───
 async function savePRToGoogleSheets(prData) {
+    saveAllToLocal();
     const result = await saveToSheets('savePR', prData);
     if (result?.success) toast('☁️ PR บันทึกไป Google Sheets แล้ว');
 }
 
 // ─── Save PO ───
 async function savePOToGoogleSheets(poData) {
+    saveAllToLocal();
     const result = await saveToSheets('savePO', poData);
     if (result?.success) toast('☁️ PO บันทึกไป Google Sheets แล้ว');
 }
 
 // ─── Save GRN ───
 async function saveGRNToGoogleSheets(grnData) {
+    saveAllToLocal();
     const result = await saveToSheets('saveGRN', grnData);
     if (result?.success) toast('☁️ GRN บันทึกไป Google Sheets แล้ว');
 }
@@ -5285,10 +5412,19 @@ async function syncAllToSheets() {
         await saveToSheets('saveProject', { id, ...p });
         count++;
     }
+    for (const [num, grn] of Object.entries(grnDatabase)) {
+        await saveToSheets('saveGRN', { grnNumber: num, ...grn });
+        count++;
+    }
+    for (const [id, d] of Object.entries(deptDB)) {
+        await saveToSheets('saveDept', { id, ...d });
+        count++;
+    }
     // Sync Settings
     await saveToSheets('saveSettings', getCompanySettings());
     count++;
-    
+
+    saveAllToLocal();
     const el = document.getElementById('gasLastSync');
     if (el) el.textContent = 'Sync ล่าสุด: ' + new Date().toLocaleString('th-TH');
     toast(`✅ ส่งข้อมูล ${count} รายการไป Google Sheets สำเร็จ!`);
@@ -5301,11 +5437,13 @@ const TEAM_USERS = [
     { id:'U001', username:'admin', password:'admin', name:'ผู้ดูแลระบบ', initials:'AD', role:'admin', roleLabel:'Admin / ผู้ดูแลระบบ', dept:'บริหาร', canApprove:true, approveStep:2, color:'#3870ff', photo:'', permissions:{dashboard:1,pr:1,po:1,compare:1,grn:1,approve:1,payment:1,reports:1,projects:1,budget:1,vendors:1,settings:1} },
 ];
 
-// Load saved photos from localStorage
-TEAM_USERS.forEach(u => {
-    const saved = localStorage.getItem('pro_photo_' + u.id);
-    if (saved) u.photo = saved;
-});
+function restoreUserPhotosFromLocal() {
+    TEAM_USERS.forEach(u => {
+        const saved = localStorage.getItem('pro_photo_' + u.id);
+        if (saved) u.photo = saved;
+    });
+}
+restoreUserPhotosFromLocal();
 
 // ─── Avatar HTML helper (reusable everywhere) ───
 function userAvatarHTML(user, size) {
@@ -5527,6 +5665,21 @@ setTimeout(initUsersAndVendors, 200);
 
 // Init on page load
 setTimeout(initGASUI, 300);
+
+// ─── Restore data on page load ───
+setTimeout(() => {
+    const hasLocal = loadAllFromLocal();
+    if (hasLocal) {
+        renderPRTable();
+        renderDashPR();
+        renderAllLinked();
+        if (typeof renderPOTable === 'function') renderPOTable();
+    }
+    // If GAS connected, sync latest data from Sheets (overwrites local if Sheets has more data)
+    if (GAS_CONFIG.enabled && GAS_CONFIG.webAppUrl) {
+        setTimeout(loadAllFromSheets, 500);
+    }
+}, 400);
 
 console.log('🎉 PRO System พร้อมใช้งาน!');
 </script>
