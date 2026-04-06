@@ -469,7 +469,7 @@
         <div class="nav-item" data-section="pr">
             <div class="nav-icon">📝</div>
             <span>Purchase Request</span>
-            <span class="nav-badge">24</span>
+            
         </div>
         <div class="nav-item" data-section="po">
             <div class="nav-icon">📋</div>
@@ -498,7 +498,7 @@
         <div class="nav-item" data-section="vendors">
             <div class="nav-icon">🏢</div>
             <span>ผู้ขาย</span>
-            <span class="nav-badge">5</span>
+            
         </div>
     </div>
 
@@ -1940,36 +1940,11 @@ function calcPO(el) {
 function submitPO() {} // legacy stub
 
 // ─── Vendor data + catalog (ราคาวัสดุแต่ละร้าน) ───
-const vendors = {
-    V001:{tax:'0-1234-56789-01-2',contact:'คุณสมชาย ใจดี',phone:'02-123-4567',name:'บริษัท สำนักงานดี จำกัด',addr:'123 ถนนพระราม 4 แขวงสีลม เขตบางรัก กรุงเทพฯ 10500',email:'contact@office-d.co.th'},
-    V002:{tax:'0-2345-67890-12-3',contact:'คุณสุดา แอร์เย็น',phone:'02-234-5678',name:'หจก. แอร์เย็นฉ่ำ',addr:'456 ซอยลาดพร้าว 101 บางกะปิ กทม.',email:'info@aircool.co.th'},
-    V003:{tax:'0-3456-78901-23-4',contact:'คุณวิชัย เทคดี',phone:'02-345-6789',name:'บจก. เทคโนโลยีดี',addr:'789 อาคารไอทีทาวเวอร์ จตุจักร กทม.',email:'sales@techgood.com'},
-    V004:{tax:'0-4567-89012-34-5',contact:'คุณนภา ปริ้นเตอร์',phone:'02-456-7890',name:'บมจ. ปริ้นเตอร์โปร',addr:'321 ถนนเพชรบุรี ราชเทวี กทม.',email:'contact@printerpro.co.th'},
-};
+const vendors = {};
 
 // ─── Vendor Catalog: keyword → price per vendor ───
 // ค้นหาจาก keyword ในชื่อรายการ → ดึงราคาอัตโนมัติ
-const vendorCatalog = {
-    V001: { // สำนักงานดี
-        'กระดาษ a4': 95, 'กระดาษ': 95, 'ปากกา': 9, 'แฟ้ม': 14, 'ตู้เก็บเอกสาร': 6200, 'ตู้เอกสาร': 6200,
-        'หมวกนิรภัย': 240, 'เสื้อสะท้อนแสง': 110, 'รองเท้า safety': 850,
-    },
-    V002: { // แอร์เย็นฉ่ำ
-        'ซ่อมคอมเพรสเซอร์': 23000, 'น้ำยาแอร์': 1700, 'ค่าแรงช่าง': 10000,
-        'ท่อ pvc': 300, 'ข้อต่อ pvc': 40, 'กาว pvc': 170,
-    },
-    V003: { // เทคโนโลยีดี
-        'เหล็กเส้น sd40 db16': 310, 'เหล็กเส้น sd40 db12': 170, 'เหล็กเส้น': 280, 'ลวดผูกเหล็ก': 42,
-        'ปูนซีเมนต์': 148, 'ทรายหยาบ': 620, 'ทราย': 620, 'หิน 3/4': 560, 'หิน': 560,
-        'ท่อ pvc': 310, 'ข้อต่อ pvc': 42, 'กาว pvc': 175,
-    },
-    V004: { // ปริ้นเตอร์โปร
-        'เหล็กเส้น sd40 db16': 325, 'เหล็กเส้น sd40 db12': 185, 'เหล็กเส้น': 290, 'ลวดผูกเหล็ก': 44,
-        'ปูนซีเมนต์': 152, 'ทรายหยาบ': 640, 'ทราย': 640, 'หิน 3/4': 570, 'หิน': 570,
-        'หมวกนิรภัย': 260, 'เสื้อสะท้อนแสง': 125, 'รองเท้า safety': 920,
-        'เช่ารถเครน': 17500, 'เครน': 17500, 'ค่าขนย้าย': 23000, 'ค่าประกัน': 14000,
-    }
-};
+const vendorCatalog = {};
 
 // ─── Auto-match item desc to vendor catalog price ───
 function findCatalogPrice(vendorId, itemDesc) {
@@ -2001,24 +1976,7 @@ function rmRow(btn, tbodyId, type) {
 // ═══════════════════════════════════════
 // ─── PO DATABASE ───
 // ═══════════════════════════════════════
-const poDatabase = {
-    'PO-2502-078': { prRef:'PR-2502-002', vendor:'บริษัท สำนักงานดี จำกัด', vendorTax:'0-1234-56789-01-2', vendorAddr:'123 ถนนพระราม 4 แขวงสีลม เขตบางรัก กรุงเทพฯ 10500', vendorContact:'คุณสมชาย ใจดี', vendorPhone:'02-123-4567', vendorEmail:'contact@office-d.co.th', date:'11 ก.พ. 68', deliveryDate:'18 ก.พ. 68', payTerms:'เครดิต 30 วัน', deliveryLoc:'อาคาร A ชั้น 2', total:42500, statusText:'อนุมัติแล้ว', statusCls:'approved',
-        items:[{desc:'กระดาษ A4 80 แกรม Double A',qty:50,unit:'รีม',price:100,total:5000,disc:0},{desc:'ปากกาลูกลื่น 0.5 mm',qty:100,unit:'ด้าม',price:10,total:1000,disc:0},{desc:'แฟ้มเอกสาร A4 2 ห่วง',qty:200,unit:'อัน',price:15,total:3000,disc:5},{desc:'ตู้เก็บเอกสาร 4 ลิ้นชัก',qty:5,unit:'ตู้',price:6500,total:32500,disc:0}],
-        approvals:[{status:'done'},{status:'done'},{status:'done'}]
-    },
-    'PO-2502-079': { prRef:'PR-2502-004', vendor:'หจก. แอร์เย็นฉ่ำ', vendorTax:'0-2345-67890-12-3', vendorAddr:'456 ซอยลาดพร้าว 101 บางกะปิ กทม.', vendorContact:'คุณสุดา แอร์เย็น', vendorPhone:'02-234-5678', vendorEmail:'info@aircool.co.th', date:'10 ก.พ. 68', deliveryDate:'20 ก.พ. 68', payTerms:'เครดิต 15 วัน', deliveryLoc:'อาคาร C ชั้น 1', total:78900, statusText:'กำลังจัดส่ง', statusCls:'in-progress',
-        items:[{desc:'ค่าซ่อมคอมเพรสเซอร์',qty:2,unit:'เครื่อง',price:25000,total:50000,disc:0},{desc:'ค่าน้ำยาแอร์ R32',qty:10,unit:'ถัง',price:1800,total:18000,disc:0},{desc:'ค่าแรงช่าง',qty:1,unit:'งาน',price:10900,total:10900,disc:0}],
-        approvals:[{status:'done'},{status:'done'},{status:'done'}]
-    },
-    'PO-2502-080': { prRef:'PR-2501-098', vendor:'บจก. เทคโนโลยีดี', vendorTax:'0-3456-78901-23-4', vendorAddr:'789 อาคารไอทีทาวเวอร์ จตุจักร กทม.', vendorContact:'คุณวิชัย เทคดี', vendorPhone:'02-345-6789', vendorEmail:'sales@techgood.com', date:'8 ก.พ. 68', deliveryDate:'15 ก.พ. 68', payTerms:'เครดิต 30 วัน', deliveryLoc:'อาคาร A ชั้น 5', total:256000, statusText:'เสร็จสิ้น', statusCls:'completed',
-        items:[{desc:'Server Dell PowerEdge R750',qty:1,unit:'เครื่อง',price:180000,total:180000,disc:0},{desc:'UPS APC 3000VA',qty:2,unit:'เครื่อง',price:35000,total:70000,disc:0},{desc:'สาย LAN Cat6',qty:20,unit:'เส้น',price:300,total:6000,disc:0}],
-        approvals:[{status:'done'},{status:'done'},{status:'done'}]
-    },
-    'PO-2502-081': { prRef:'PR-2502-003', vendor:'บมจ. ปริ้นเตอร์โปร', vendorTax:'0-4567-89012-34-5', vendorAddr:'321 ถนนเพชรบุรี ราชเทวี กทม.', vendorContact:'คุณนภา ปริ้นเตอร์', vendorPhone:'02-456-7890', vendorEmail:'contact@printerpro.co.th', date:'9 ก.พ. 68', deliveryDate:'1 มี.ค. 68', payTerms:'เครดิต 30 วัน', deliveryLoc:'อาคาร A ทุกชั้น', total:320000, statusText:'รอการชำระ', statusCls:'pending',
-        items:[{desc:'เช่า HP LaserJet Enterprise',qty:10,unit:'เครื่อง',price:2500,total:25000,disc:0},{desc:'ค่าบำรุงรักษาประจำปี',qty:1,unit:'ปี',price:95000,total:95000,disc:0},{desc:'ค่าหมึกและกระดาษ',qty:12,unit:'เดือน',price:20000,total:200000,disc:0}],
-        approvals:[{status:'done'},{status:'done'},{status:'current'}]
-    }
-};
+const poDatabase = {};
 
 // ═══════════════════════════════════════
 // ─── PO CREATION FROM APPROVED PR ───
@@ -2624,80 +2582,7 @@ const APPROVAL_CHAIN = [
     { key:'md', label:'MD', shortLabel:'MD', person:'ประสิทธิ์ ใจดี', role:'กรรมการผู้จัดการ / Managing Director', color:'#10b981' }
 ];
 
-const prDB = {
-    'PR-2502-001': {
-        title:'จัดซื้อเหล็กเส้น SD40 ไซต์งาน A', requester:'สมชาย ใจดี', department:'ก่อสร้าง',
-        created:'10 ก.พ. 68', required:'25 ก.พ. 68', priority:'สูง', budgetType:'วัสดุก่อสร้าง',
-        reason:'เหล็กเส้นสำหรับงานโครงสร้างชั้น 3 ไซต์ A ต้องใช้ภายในสัปดาห์หน้าตามแผนงาน',
-        items:[{desc:'เหล็กเส้น SD40 DB16 ยาว 10 ม.',qty:200,unit:'เส้น',price:320,total:64000},{desc:'เหล็กเส้น SD40 DB12 ยาว 10 ม.',qty:300,unit:'เส้น',price:180,total:54000},{desc:'ลวดผูกเหล็ก',qty:50,unit:'กก.',price:45,total:2250}],
-        total:120250,
-        approvals: [
-            {status:'done', date:'10 ก.พ. 68 09:30', note:'ตรงตามแผนงาน อนุมัติ'},
-            {status:'current', date:null, note:null},
-            {status:'waiting', date:null, note:null}
-        ]
-    },
-    'PR-2502-002': {
-        title:'วัสดุสำนักงาน Q1/2568', requester:'สุดา พรสวรรค์', department:'ธุรการ',
-        created:'9 ก.พ. 68', required:'15 ก.พ. 68', priority:'ปานกลาง', budgetType:'OPEX',
-        reason:'วัสดุสำนักงานใกล้หมดสต็อก ต้องเตรียมสำหรับ Q1',
-        items:[{desc:'กระดาษ A4',qty:50,unit:'รีม',price:100,total:5000},{desc:'ปากกา',qty:100,unit:'ด้าม',price:10,total:1000},{desc:'แฟ้มเอกสาร',qty:200,unit:'อัน',price:15,total:3000},{desc:'ตู้เก็บเอกสาร',qty:5,unit:'ตู้',price:6500,total:32500}],
-        total:42500,
-        approvals: [
-            {status:'done', date:'9 ก.พ. 68 08:45', note:'อนุมัติ'},
-            {status:'done', date:'9 ก.พ. 68 13:00', note:'ราคาเหมาะสม'},
-            {status:'done', date:'9 ก.พ. 68 16:45', note:'อนุมัติ — ออก PO ได้'}
-        ]
-    },
-    'PR-2502-003': {
-        title:'เช่ารถเครน 25 ตัน ไซต์ B', requester:'วิชัย รุ่งเรือง', department:'เครื่องจักร',
-        created:'8 ก.พ. 68', required:'1 มี.ค. 68', priority:'สูง', budgetType:'เช่าเครื่องจักร',
-        reason:'งานยกโครงสร้างเหล็กชั้น 5 ต้องใช้เครน 25 ตัน ระยะเวลา 15 วัน',
-        items:[{desc:'เช่ารถเครน 25 ตัน พร้อมคนขับ',qty:15,unit:'วัน',price:18000,total:270000},{desc:'ค่าขนย้ายเครน (ไป-กลับ)',qty:1,unit:'เที่ยว',price:25000,total:25000},{desc:'ค่าประกันภัย',qty:1,unit:'งาน',price:15000,total:15000}],
-        total:310000,
-        approvals: [
-            {status:'done', date:'8 ก.พ. 68 09:00', note:'อนุมัติ'},
-            {status:'done', date:'8 ก.พ. 68 14:00', note:'เทียบราคา 3 ราย แล้ว'},
-            {status:'current', date:null, note:null}
-        ]
-    },
-    'PR-2502-004': {
-        title:'ปูนซีเมนต์ + ทราย ไซต์ A', requester:'นภา สุขสม', department:'ก่อสร้าง',
-        created:'7 ก.พ. 68', required:'20 ก.พ. 68', priority:'สูง', budgetType:'วัสดุก่อสร้าง',
-        reason:'วัสดุสำหรับเทพื้นคอนกรีตชั้น 2 ตามแผนงานประจำสัปดาห์',
-        items:[{desc:'ปูนซีเมนต์ปอร์ตแลนด์ ตราเสือ',qty:100,unit:'ถุง',price:155,total:15500},{desc:'ทรายหยาบ',qty:30,unit:'คิว',price:650,total:19500},{desc:'หิน 3/4',qty:25,unit:'คิว',price:580,total:14500}],
-        total:49500,
-        approvals: [
-            {status:'done', date:'7 ก.พ. 68 10:00', note:'ตรงตามงาน'},
-            {status:'current', date:null, note:null},
-            {status:'waiting', date:null, note:null}
-        ]
-    },
-    'PR-2502-005': {
-        title:'อุปกรณ์ Safety ไซต์ C', requester:'มานี ขยัน', department:'ความปลอดภัย',
-        created:'6 ก.พ. 68', required:'28 ก.พ. 68', priority:'ปานกลาง', budgetType:'OPEX',
-        reason:'อุปกรณ์ PPE สำหรับคนงานใหม่ 15 คน ที่ไซต์ C',
-        items:[{desc:'หมวกนิรภัย สีขาว',qty:15,unit:'ใบ',price:250,total:3750},{desc:'เสื้อสะท้อนแสง',qty:15,unit:'ตัว',price:120,total:1800},{desc:'รองเท้า Safety',qty:15,unit:'คู่',price:890,total:13350}],
-        total:18900,
-        approvals: [
-            {status:'current', date:null, note:null},
-            {status:'waiting', date:null, note:null},
-            {status:'waiting', date:null, note:null}
-        ]
-    },
-    'PR-2501-089': {
-        title:'ท่อ PVC + ข้อต่อ งานประปา ไซต์ A', requester:'ประภา สมบูรณ์', department:'MEP',
-        created:'28 ม.ค. 68', required:'15 ก.พ. 68', priority:'ปานกลาง', budgetType:'วัสดุก่อสร้าง',
-        reason:'วัสดุงานระบบประปาสุขาภิบาลชั้น 1-2',
-        items:[{desc:'ท่อ PVC 4 นิ้ว ชั้น 8.5',qty:50,unit:'เส้น',price:320,total:16000},{desc:'ข้อต่อ PVC 4 นิ้ว (แบบต่างๆ)',qty:100,unit:'ชิ้น',price:45,total:4500},{desc:'กาว PVC',qty:10,unit:'กระป๋อง',price:180,total:1800}],
-        total:22300,
-        approvals: [
-            {status:'done', date:'28 ม.ค. 68 09:00', note:'อนุมัติ'},
-            {status:'done', date:'29 ม.ค. 68 09:30', note:'ราคาตรง'},
-            {status:'done', date:'30 ม.ค. 68 10:00', note:'อนุมัติ — จัดซื้อได้'}
-        ]
-    }
-};
+const prDB = {};
 
 // ─── Helper: get PR status from approvals ───
 function getPRStatus(approvals) {
@@ -2996,13 +2881,7 @@ document.querySelectorAll('input[type="file"]').forEach(input => {
 // ═══════════════════════════════════════
 // ─── VENDOR MANAGEMENT ───
 // ═══════════════════════════════════════
-const vendorDB = {
-    V001:{name:'บริษัท สำนักงานดี จำกัด',tax:'0-1234-56789-01-2',type:'บริษัทจำกัด',category:'วัสดุสำนักงาน',address:'123 ถนนพระราม 4 แขวงสีลม เขตบางรัก กรุงเทพฯ 10500',contact:'คุณสมชาย ใจดี',position:'ผู้จัดการฝ่ายขาย',phone:'02-123-4567',email:'contact@office-d.co.th',line:'@office-d',website:'www.office-d.co.th',terms:'เครดิต 30 วัน',credit:500000,status:'ใช้งาน',poCount:15,totalValue:1850000,avgRating:4.5,lastPO:'11 ก.พ. 68'},
-    V002:{name:'หจก. แอร์เย็นฉ่ำ',tax:'0-2345-67890-12-3',type:'ห้างหุ้นส่วนจำกัด',category:'ซ่อมบำรุง',address:'456 ซอยลาดพร้าว 101 แขวงคลองจั่น เขตบางกะปิ กรุงเทพฯ 10240',contact:'คุณสุดา แอร์เย็น',position:'เจ้าของกิจการ',phone:'02-234-5678',email:'info@aircool.co.th',line:'@aircool',website:'',terms:'เครดิต 15 วัน',credit:200000,status:'ใช้งาน',poCount:8,totalValue:920000,avgRating:4.2,lastPO:'10 ก.พ. 68'},
-    V003:{name:'บจก. เทคโนโลยีดี',tax:'0-3456-78901-23-4',type:'บริษัทจำกัด',category:'เทคโนโลยี/IT',address:'789 อาคารไอทีทาวเวอร์ ถนนพหลโยธิน จตุจักร กรุงเทพฯ 10900',contact:'คุณวิชัย เทคดี',position:'ฝ่ายขาย',phone:'02-345-6789',email:'sales@techgood.com',line:'',website:'www.techgood.com',terms:'เครดิต 30 วัน',credit:1000000,status:'ใช้งาน',poCount:22,totalValue:4500000,avgRating:4.8,lastPO:'8 ก.พ. 68'},
-    V004:{name:'บมจ. ปริ้นเตอร์โปร',tax:'0-4567-89012-34-5',type:'บริษัทมหาชนจำกัด',category:'เทคโนโลยี/IT',address:'321 ถนนเพชรบุรี แขวงทุ่งพญาไท เขตราชเทวี กรุงเทพฯ 10400',contact:'คุณนภา ปริ้นเตอร์',position:'ผู้จัดการบัญชี',phone:'02-456-7890',email:'contact@printerpro.co.th',line:'@printerpro',website:'www.printerpro.co.th',terms:'เครดิต 30 วัน',credit:500000,status:'ใช้งาน',poCount:5,totalValue:1600000,avgRating:4.0,lastPO:'9 ก.พ. 68'},
-    V005:{name:'บจก. อุปกรณ์ครบวงจร',tax:'0-5678-90123-45-6',type:'บริษัทจำกัด',category:'วัสดุสำนักงาน',address:'654 ถนนสุขุมวิท 55 แขวงคลองตันเหนือ เขตวัฒนา กรุงเทพฯ 10110',contact:'คุณมานี ครบวงจร',position:'เจ้าของ',phone:'02-567-8901',email:'info@equipment.com',line:'',website:'',terms:'เงินสด',credit:0,status:'ระงับใช้งาน',poCount:3,totalValue:380000,avgRating:3.2,lastPO:'15 ม.ค. 68'}
-};
+const vendorDB = {};
 
 function viewVendorDetail(id) {
     const v = vendorDB[id];
@@ -3060,14 +2939,7 @@ function submitVendor() {
 // ═══════════════════════════════════════
 // ─── DEPARTMENT MANAGEMENT ───
 // ═══════════════════════════════════════
-const deptDB = {
-    D001:{nameTh:'ฝ่ายก่อสร้าง / วิศวกรรม',nameEn:'Construction & Engineering',code:'CON',type:'engineering',head:'วิชัย ศิริ',headTitle:'หัวหน้าไซต์ / Site Manager',qualification:'วศ.บ. โยธา / สย.',email:'site@company.co.th',ext:'101',location:'ไซต์งาน A, B',budget:5000000,used:2800000,employees:18,engineers:3,laborers:15,costCenter:'CC-CON',iso:'-',desc:'ควบคุมงานก่อสร้างทุกไซต์ งานโครงสร้าง โยธา MEP ดูแลทีมช่างและคนงาน ประสานงานผู้รับเหมาย่อย ตรวจสอบคุณภาพงานตามแบบ'},
-    D002:{nameTh:'ฝ่ายประมาณราคา / สัญญา',nameEn:'QS & Estimation',code:'QS',type:'management',head:'มานี ขยัน',headTitle:'QS / ผู้ประมาณราคา',qualification:'วศ.บ. โยธา',email:'qs@company.co.th',ext:'102',location:'สำนักงาน',budget:1500000,used:900000,employees:4,engineers:2,laborers:2,costCenter:'CC-QS',iso:'-',desc:'จัดทำ BOQ ประมาณราคา เปรียบเทียบราคาผู้รับเหมา บริหารสัญญา เคลมงานเพิ่ม-ลด ตรวจสอบปริมาณงาน'},
-    D003:{nameTh:'ฝ่ายจัดซื้อ / คลังวัสดุ',nameEn:'Procurement & Warehouse',code:'PRC',type:'procurement',head:'สุดา พรสวรรค์',headTitle:'หัวหน้าจัดซื้อ',qualification:'บธ.บ.',email:'procurement@company.co.th',ext:'103',location:'สำนักงาน + ไซต์',budget:4000000,used:2500000,employees:5,engineers:0,laborers:5,costCenter:'CC-PRC',iso:'-',desc:'จัดซื้อวัสดุก่อสร้าง (เหล็ก ปูน ทราย) เช่าเครื่องจักร ว่าจ้างผู้รับเหมาย่อย ดูแลคลังวัสดุ ติดตามการจัดส่ง'},
-    D004:{nameTh:'Safety / ความปลอดภัย',nameEn:'Safety',code:'SHE',type:'safety',head:'นภา สุขสม',headTitle:'จป.วิชาชีพ',qualification:'จป.วิชาชีพ',email:'safety@company.co.th',ext:'104',location:'ทุกไซต์งาน',budget:800000,used:450000,employees:3,engineers:1,laborers:2,costCenter:'CC-SHE',iso:'-',desc:'ตรวจไซต์ อบรมความปลอดภัย จัดการ PPE รายงานอุบัติเหตุ ประสานงาน จป. ตามกฎหมาย'},
-    D005:{nameTh:'บัญชี / การเงิน',nameEn:'Finance & Accounting',code:'FIN',type:'support',head:'สุดา แสงทอง',headTitle:'หัวหน้าบัญชี',qualification:'บช.บ.',email:'finance@company.co.th',ext:'105',location:'สำนักงาน',budget:1200000,used:600000,employees:3,engineers:0,laborers:3,costCenter:'CC-FIN',iso:'-',desc:'บัญชีโครงการ ต้นทุนก่อสร้าง วางบิล รับเช็ค ภาษี Cash Flow'},
-    D006:{nameTh:'ธุรการ / บุคคล',nameEn:'Admin & HR',code:'ADM',type:'support',head:'ประภา สมบูรณ์',headTitle:'หัวหน้าธุรการ',qualification:'บธ.บ.',email:'admin@company.co.th',ext:'106',location:'สำนักงาน',budget:1000000,used:400000,employees:3,engineers:0,laborers:3,costCenter:'CC-ADM',iso:'-',desc:'งานธุรการ สรรหาช่าง/แรงงาน สัญญาจ้าง สวัสดิการ ประกันสังคม ดูแลสำนักงาน'}
-};
+const deptDB = {};
 
 function viewDeptDetail(id) {
     const d = deptDB[id];
@@ -3130,12 +3002,7 @@ function viewDeptDetail(id) {
 // ═══════════════════════════════════════
 // ─── PROJECT DB (must be before renderAllLinked) ───
 // ═══════════════════════════════════════
-const projectDB = {
-    'PROJ-68-001': { name:'ก่อสร้างอาคาร A (5 ชั้น)', type:'building', location:'ไซต์ A ถ.พระราม 4', client:'บจก. เอเอ็ม พัฒนา', deptId:'D001', supportDepts:['D003','D004'], manager:'วิชัย ศิริ', budget:8500000, used:4200000, contract:9000000, start:'1 ม.ค. 68', end:'30 มิ.ย. 68', status:'active', priority:'high', scope:'ก่อสร้างอาคารคอนกรีต 5 ชั้น พร้อมงานฐานราก เสาเข็ม โครงสร้าง' },
-    'PROJ-68-002': { name:'งานระบบไฟฟ้า-ประปา อาคาร B', type:'mep', location:'ไซต์ B ซ.ลาดพร้าว 101', client:'หจก. บีบี เรสซิเดนซ์', deptId:'D001', supportDepts:['D003'], manager:'สมชาย ใจดี', budget:3200000, used:1800000, contract:3500000, start:'15 ม.ค. 68', end:'30 เม.ย. 68', status:'active', priority:'medium', scope:'ติดตั้งระบบไฟฟ้า ประปา สุขาภิบาล แอร์' },
-    'PROJ-68-003': { name:'ปรับปรุงถนนภายในโรงงาน', type:'civil', location:'โรงงาน XYZ บางนา', client:'บมจ. XYZ อุตสาหกรรม', deptId:'D001', supportDepts:['D004'], manager:'วิชัย ศิริ', budget:1200000, used:1200000, contract:1200000, start:'1 ธ.ค. 67', end:'31 ม.ค. 68', status:'completed', priority:'low', scope:'ปรับปรุงผิวถนนคอนกรีต ระบบระบายน้ำ' },
-    'PROJ-68-004': { name:'ต่อเติมโกดัง C', type:'building', location:'ไซต์ C บางพลี', client:'บจก. ซีซี โลจิสติกส์', deptId:'D001', supportDepts:['D002','D003'], manager:'วิชัย ศิริ', budget:2800000, used:450000, contract:3000000, start:'1 ก.พ. 68', end:'31 พ.ค. 68', status:'active', priority:'high', scope:'ต่อเติมโกดังเหล็กขนาด 500 ตร.ม. พร้อมพื้นคอนกรีต' },
-};
+const projectDB = {};
 function getDeptName(deptId) { const d = deptDB[deptId]; return d ? d.nameTh : deptId; }
 function getDeptHead(deptId) { const d = deptDB[deptId]; return d ? d.head : '-'; }
 function getDeptOptions(selectedId) {
@@ -3590,12 +3457,7 @@ renderDashStats();
 // ═══════════════════════════════════════
 // ─── USER MANAGEMENT ───
 // ═══════════════════════════════════════
-const userDB = {
-    U001:{name:'ประสิทธิ์ ใจดี',empId:'EMP-001',email:'prasit@company.co.th',phone:'081-111-1111',dept:'IT',position:'CEO',role:'Admin',roleLabel:'Admin',approvalLimit:'ไม่จำกัด',supervisor:'—',startDate:'1 ม.ค. 60',status:'ใช้งาน',lastLogin:'12 ก.พ. 68 09:15',prCreated:5,prApproved:45,color:'#4f6ef7'},
-    U002:{name:'วิชัย ศิริ',empId:'EMP-002',email:'wichai@company.co.th',phone:'081-222-2222',dept:'IT',position:'หัวหน้าแผนก',role:'Manager',roleLabel:'Manager',approvalLimit:'฿500,000',supervisor:'ประสิทธิ์ ใจดี',startDate:'15 มี.ค. 62',status:'ใช้งาน',lastLogin:'12 ก.พ. 68 08:42',prCreated:12,prApproved:28,color:'#10b981'},
-    U003:{name:'สุดา แสงทอง',empId:'EMP-003',email:'suda@company.co.th',phone:'081-333-3333',dept:'Admin',position:'ผู้จัดการ',role:'Approver',roleLabel:'Approver',approvalLimit:'฿1,000,000',supervisor:'ประสิทธิ์ ใจดี',startDate:'1 มิ.ย. 61',status:'ใช้งาน',lastLogin:'11 ก.พ. 68 16:30',prCreated:3,prApproved:52,color:'#f59e0b'},
-    U004:{name:'สมชาย ใจดี',empId:'EMP-004',email:'somchai@company.co.th',phone:'081-444-4444',dept:'IT',position:'พนักงาน',role:'User',roleLabel:'User',approvalLimit:'—',supervisor:'วิชัย ศิริ',startDate:'1 ก.ย. 64',status:'ใช้งาน',lastLogin:'12 ก.พ. 68 10:05',prCreated:8,prApproved:0,color:'#8b5cf6'}
-};
+const userDB = {};
 
 function viewUserDetail(id) {
     const u = userDB[id];
@@ -4898,7 +4760,7 @@ function openGRNForm(poNum) {
 
         <div class="form-section" style="margin-top:16px;">
             <div class="form-row">
-                <div class="form-group"><label>ผู้รับสินค้า <span class="req">*</span></label><input type="text" id="grnReceiver" placeholder="ชื่อ-นามสกุล ผู้ตรวจรับ" value="สมชาย ใจดี"></div>
+                <div class="form-group"><label>ผู้รับสินค้า <span class="req">*</span></label><input type="text" id="grnReceiver" placeholder="ชื่อ-นามสกุล ผู้ตรวจรับ" value=""></div>
                 <div class="form-group"><label>วันที่รับ</label><input type="date" id="grnDate" value="${new Date().toISOString().split('T')[0]}"></div>
             </div>
             <div class="form-group"><label>หมายเหตุ</label><textarea id="grnNotes" rows="2" placeholder="บันทึกการรับสินค้า เช่น สินค้าครบ, ตรงตามสเปค" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-th);font-size:13px;width:100%;"></textarea></div>
@@ -5446,14 +5308,7 @@ async function syncAllToSheets() {
 // ─── USER SESSION (Multi-user) ───
 // ═══════════════════════════════════════
 const TEAM_USERS = [
-    { id:'U001', username:'admin', password:'1234', name:'ประสิทธิ์ ใจดี', initials:'ปจ', role:'admin', roleLabel:'MD / ผู้จัดการ', dept:'บริหาร', canApprove:true, approveStep:2, color:'#4f6ef7', photo:'' },
-    { id:'U002', username:'manager', password:'1234', name:'วิชัย ศิริ', initials:'วศ', role:'manager', roleLabel:'หัวหน้างาน / Site Manager', dept:'ก่อสร้าง', canApprove:true, approveStep:0, color:'#10b981', photo:'' },
-    { id:'U003', username:'procurement', password:'1234', name:'สุดา พรสวรรค์', initials:'สพ', role:'procurement', roleLabel:'หัวหน้าจัดซื้อ', dept:'จัดซื้อ', canApprove:true, approveStep:1, color:'#f59e0b', photo:'' },
-    { id:'U004', username:'engineer1', password:'1234', name:'สมชาย ใจดี', initials:'สจ', role:'engineer', roleLabel:'วิศวกรไซต์ A', dept:'ก่อสร้าง', canApprove:false, approveStep:-1, color:'#8b5cf6', photo:'' },
-    { id:'U005', username:'safety', password:'1234', name:'นภา สุขสม', initials:'นส', role:'safety', roleLabel:'จป.วิชาชีพ', dept:'Safety', canApprove:false, approveStep:-1, color:'#ef4444', photo:'' },
-    { id:'U006', username:'qs', password:'1234', name:'มานี ขยัน', initials:'มข', role:'qs', roleLabel:'QS / ประมาณราคา', dept:'ประมาณราคา', canApprove:false, approveStep:-1, color:'#06b6d4', photo:'' },
-    { id:'U007', username:'hr', password:'1234', name:'ประภา สมบูรณ์', initials:'ปส', role:'admin_hr', roleLabel:'ธุรการ / HR', dept:'ธุรการ', canApprove:false, approveStep:-1, color:'#ec4899', photo:'' },
-    { id:'U008', username:'finance', password:'1234', name:'สุดา แสงทอง', initials:'สท', role:'finance', roleLabel:'บัญชี / การเงิน', dept:'บัญชี', canApprove:false, approveStep:-1, color:'#84cc16', photo:'' },
+    { id:'U001', username:'admin', password:'admin', name:'ผู้ดูแลระบบ', initials:'AD', role:'admin', roleLabel:'Admin / ผู้ดูแลระบบ', dept:'บริหาร', canApprove:true, approveStep:2, color:'#3870ff', photo:'', permissions:{dashboard:1,pr:1,po:1,compare:1,grn:1,approve:1,payment:1,reports:1,projects:1,budget:1,vendors:1,settings:1} },
 ];
 
 // Load saved photos from localStorage
